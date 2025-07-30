@@ -51,3 +51,6 @@ jobs:
     # مؤقتًا بإضافة # في بدايته ليصبح "# - name: Run PHPUnit Tests" وهكذا.
     - name: Run PHPUnit Tests
       run: vendor/bin/phpunit
+git add .github/workflows/php-ci.yml
+git commit -m "Add GitHub Actions CI workflow for simple-notes-app-project"
+git push origin main
