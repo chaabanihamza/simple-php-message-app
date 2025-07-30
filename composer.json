@@ -1,4 +1,6 @@
 {
     "name": "chaabanihamza/simple-php-message-app",
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    }
 }
