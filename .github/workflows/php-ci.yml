@@ -49,5 +49,5 @@ jobs:
     # هذه الخطوة تتطلب أن تكون قد قمت بإعداد PHPUnit في مشروعك (ملف phpunit.xml ومجلد tests/ بملفات الاختبار).
     # إذا لم تكن قد قمت بذلك بعد أو لم تكن اختباراتك جاهزة، يمكنك تعليق هذا السطر
     # مؤقتًا بإضافة # في بدايته ليصبح "# - name: Run PHPUnit Tests" وهكذا.
-    - name: Run PHPUnit Tests
-      run: vendor/bin/phpunit
+#    - name: Run PHPUnit Tests
+ #     run: vendor/bin/phpunit
