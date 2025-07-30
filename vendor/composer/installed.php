@@ -3,7 +3,7 @@
         'name' => 'chaabanihamza/simple-php-message-app',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1b4cc5e8a91a8ad64ff8764555157353d120ec46',
+        'reference' => '68d2d26b074a125b82ada5d25b5c635619715423',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'chaabanihamza/simple-php-message-app' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1b4cc5e8a91a8ad64ff8764555157353d120ec46',
+            'reference' => '68d2d26b074a125b82ada5d25b5c635619715423',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
