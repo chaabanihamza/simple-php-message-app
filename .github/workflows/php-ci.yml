@@ -1,53 +1,17 @@
-name: PHP CI Workflow # اسم الـ Workflow، يظهر في تبويب Actions على GitHub
-
-# تحديد متى يتم تشغيل هذا الـ workflow (المشغل/Trigger)
-on:
-  # سيتم تشغيل هذا الـ workflow عند كل عملية دفع (push) للكود
-  # إلى الفرع الرئيسي (main).
-  push:
-    branches: [ "main" ] # تأكد من أن هذا هو اسم فرعك الرئيسي (قد يكون "master" بدلاً من "main")
-
-  # سيتم تشغيل هذا الـ workflow أيضًا عند كل طلب دمج (pull request)
-  # يستهدف الفرع الرئيسي (main).
-  pull_request:
-    branches: [ "main" ] # تأكد من أن هذا هو اسم فرعك الرئيسي
-
-# تحديد الوظائف (Jobs) التي سيتم تنفيذها كجزء من هذا الـ workflow
-jobs:
-  build-and-test: # اسم الوظيفة، يمكنك تسميتها أي شيء
-    # تحديد نوع نظام التشغيل الذي ستعمل عليه هذه الوظيفة
-    # 'ubuntu-latest' هو خيار شائع وفعال
-    runs-on: ubuntu-latest
-
-    # الخطوات (Steps) التي ستنفذها هذه الوظيفة بالترتيب
-    steps:
-    # الخطوة 1: سحب الكود من مستودع GitHub الخاص بك
-    - name: Checkout code
-      uses: actions/checkout@v4 # هذا هو "Action" جاهز لسحب الكود
-
-    # الخطوة 2: إعداد بيئة PHP
-    # يستخدم هذا الـ Action لتثبيت PHP و Composer
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2' # يمكنك تغيير إصدار PHP هنا إلى ما تستخدمه في مشروعك (مثل '7.4', '8.0', '8.1', '8.3')
-        extensions: mbstring, pdo_mysql # تثبيت إضافات PHP الشائعة إذا كانت مطلوبة لمشروعك (يمكنك حذفها إذا لم تكن بحاجة إليها)
-        tools: composer # هذا يضمن تثبيت Composer
-
-    # الخطوة 3: تثبيت تبعيات Composer
-    # هذا الأمر سيثبت جميع التبعيات المحددة في ملف composer.json الخاص بك،
-    # بما في ذلك PHPUnit إذا كنت قد قمت بتثبيته كـ dev dependency.
-    - name: Install Composer dependencies
-      run: composer install --no-interaction --prefer-dist
-
-    # الخطوة 4: تشغيل فحص بناء الجملة (Syntax Check / Linting)
-    # هذا الأمر يتحقق من خلو ملفات PHP من أخطاء بناء الجملة الأساسية.
-    - name: Run PHP Syntax Check (Linting)
-      run: find . -name "*.php" -print0 | xargs -0 -n1 php -l
-
-    # الخطوة 5: تشغيل اختبارات PHPUnit
-    # هذه الخطوة تتطلب أن تكون قد قمت بإعداد PHPUnit في مشروعك (ملف phpunit.xml ومجلد tests/ بملفات الاختبار).
-    # إذا لم تكن قد قمت بذلك بعد أو لم تكن اختباراتك جاهزة، يمكنك تعليق هذا السطر
-    # مؤقتًا بإضافة # في بدايته ليصبح "# - name: Run PHPUnit Tests" وهكذا.
-#    - name: Run PHPUnit Tests
- #     run: vendor/bin/phpunit
+- name: Deploy to Apache2 Server # هذه هي خطوة النشر الجديدة
+  if: success() && github.ref == 'refs/heads/main' # انشر فقط إذا نجحت CI وعلى فرع main
+  uses: appleboy/ssh-action@v1.0.3
+  with:
+    host: ${{ secrets.SSH_HOST_APACHE }}
+    username: ${{ secrets.SSH_USERNAME_APACHE }}
+    key: ${{ secrets.SSH_PRIVATE_KEY_APACHE }}
+    port: 22 # منفذ SSH الافتراضي
+    script: |
+      cd ${{ secrets.DEPLOY_PATH_APACHE }}
+      git pull origin main # لسحب أحدث كود إلى الخادم
+      composer install --no-dev --optimize-autoloader # تثبيت التبعيات للإنتاج
+      sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH_APACHE }} # ضبط الأذونات
+      sudo chmod -R 755 ${{ secrets.DEPLOY_PATH_APACHE }} # ضبط الأذونات
+      sudo systemctl reload apache2 # إعادة تحميل Apache2 بعد نشر التغييرات
+      sudo systemctl reload php8.2-fpm # إعادة تحميل PHP-FPM إذا لزم الأمر
+      echo "Deployment successful to Apache2!"
