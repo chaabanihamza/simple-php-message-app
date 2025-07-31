@@ -19,8 +19,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # ... (يمكنك وضع خطوات CI الأخرى هنا لاحقاً إذا كنت تريد) ...
-    # (على سبيل المثال:
+    # You can add other CI steps here like Setup PHP, Install Composer dependencies, PHPStan, etc.
     # - name: Setup PHP
     #   uses: shivammathur/setup-php@v2
     #   with:
@@ -33,8 +32,6 @@ jobs:
     #
     # - name: Run PHPStan
     #   run: vendor/bin/phpstan analyse
-    # )
-
 
     - name: Deploy to Apache2 Server
       if: success() && github.ref == 'refs/heads/main'
