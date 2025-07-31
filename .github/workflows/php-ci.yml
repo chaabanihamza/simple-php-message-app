@@ -1,5 +1,5 @@
 name: PHP CI/CD Workflow
-on:
+on: # يجب أن يبدأ من بداية السطر
   push:
     branches:
       - main
@@ -7,14 +7,14 @@ on:
     branches:
       - main
 
-jobs:
+jobs: # يجب أن يبدأ من بداية السطر
   build-and-test:
     runs-on: ubuntu-latest
     environment:
       name: Production
       url: http://${{ secrets.SSH_HOST_APACHE }}
 
-    steps:
+    steps: # يجب أن يبدأ من بداية السطر
     - name: Checkout code
       uses: actions/checkout@v4
 
