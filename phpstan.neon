@@ -1,0 +1,4 @@
+parameters:
+    excludes_analyse:
+        - vendor/
+    level: 5 # تأكد من أن هذا يتطابق مع المستوى الذي تستخدمه في أمر phpstan analyse
