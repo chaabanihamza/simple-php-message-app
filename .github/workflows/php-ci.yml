@@ -1,5 +1,4 @@
 name: PHP CI/CD Workflow
-
 on:
   push:
     branches:
@@ -19,7 +18,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # You can add other CI steps here like Setup PHP, Install Composer dependencies, PHPStan, etc.
     # - name: Setup PHP
     #   uses: shivammathur/setup-php@v2
     #   with:
