@@ -10,24 +10,10 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    # لقد قمنا بإزالة جزء البيئة هنا
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    # - name: Setup PHP
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: '8.2'
-    #     extensions: mbstring, xml, curl
-    #     tools: composer, phpunit
-    #
-    # - name: Install Composer dependencies
-    #   run: composer install --no-dev --optimize-autoloader
-    #
-    # - name: Run PHPStan
-    #   run: vendor/bin/phpstan analyse
 
     - name: Deploy to Apache2 Server
       if: success() && github.ref == 'refs/heads/main'
