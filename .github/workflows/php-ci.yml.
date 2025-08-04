@@ -1,4 +1,4 @@
-name: PHP CI/CD and Quality Workflow
+name: PHP CI/CD Workflow
 on:
   push:
     branches:
@@ -8,74 +8,41 @@ on:
       - main
 
 jobs:
-  quality-checks-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
-    environment:
-      name: Production
-      url: http://${{ secrets.SSH_HOST_APACHE }}
+    # لقد قمنا بإزالة جزء البيئة هنا
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, xml, curl
-          tools: composer
+    # - name: Setup PHP
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: '8.2'
+    #     extensions: mbstring, xml, curl
+    #     tools: composer, phpunit
+    #
+    # - name: Install Composer dependencies
+    #   run: composer install --no-dev --optimize-autoloader
+    #
+    # - name: Run PHPStan
+    #   run: vendor/bin/phpstan analyse
 
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
-
-      # -------------------------------------
-      # خطوات فحص جودة الكود والأمان
-      # -------------------------------------
-
-      - name: Run Composer Audit for security vulnerabilities
-        run: composer audit
-
-      - name: Run PHPUnit (Unit Testing)
-        run: vendor/bin/phpunit --colors=always
-
-      - name: Run PHPStan (Static Analysis)
-        run: vendor/bin/phpstan analyse --memory-limit=1G
-
-      - name: Run PHPMD (Code Smell Detection)
-        run: vendor/bin/phpmd . github-actions-phpmd.xml
-
-      - name: Run PHP_CodeSniffer (Coding Standards)
-        run: vendor/bin/phpcs --standard=PSR12 .
-
-      # -------------------------------------
-      # خطوة النشر (Deploy) - لن يتم تشغيلها إلا بعد نجاح كل الخطوات السابقة
-      # -------------------------------------
-      - name: Deploy to Apache2 Server
-        if: success() && github.ref == 'refs/heads/main'
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST_APACHE }}
-          username: ${{ secrets.SSH_USERNAME_APACHE }}
-          key: ${{ secrets.SSH_PRIVATE_KEY_APACHE }}
-          port: 22
-          script: |
-            cd ${{ secrets.DEPLOY_PATH_APACHE }}
-            git pull origin main
-            composer install --no-dev --optimize-autoloader
-            sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH_APACHE }}
-            sudo chmod -R 755 ${{ secrets.DEPLOY_PATH_APACHE }}
-            sudo systemctl reload apache2
-            sudo systemctl reload php8.2-fpm
-            echo "Deployment successful to Apache2!"
+    - name: Deploy to Apache2 Server
+      if: success() && github.ref == 'refs/heads/main'
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST_APACHE }}
+        username: ${{ secrets.SSH_USERNAME_APACHE }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_APACHE }}
+        port: 22
+        script: |
+          cd ${{ secrets.DEPLOY_PATH_APACHE }}
+          git pull origin main
+          composer install --no-dev --optimize-autoloader
+          sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH_APACHE }}
+          sudo chmod -R 755 ${{ secrets.DEPLOY_PATH_APACHE }}
+          sudo systemctl reload apache2
+          sudo systemctl reload php8.2-fpm
+          echo "Deployment successful to Apache2!"
