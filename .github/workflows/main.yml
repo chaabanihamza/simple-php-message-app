@@ -1,0 +1,34 @@
+name: PHP CI/CD Workflow
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to Apache2 Server
+      if: success() && github.ref == 'refs/heads/main'
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST_APACHE }}
+        username: ${{ secrets.SSH_USERNAME_APACHE }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_APACHE }}
+        port: 22
+        script: |
+          cd ${{ secrets.DEPLOY_PATH_APACHE }}
+          git pull origin main
+          composer install --no-dev --optimize-autoloader
+          sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH_APACHE }}
+          sudo chmod -R 755 ${{ secrets.DEPLOY_PATH_APACHE }}
+          sudo systemctl reload apache2
+          sudo systemctl reload php8.2-fpm
+          echo "Deployment successful to Apache2!"
